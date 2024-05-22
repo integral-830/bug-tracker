@@ -4,10 +4,13 @@ import { usePathname } from 'next/navigation';
 import { FaBug } from "react-icons/fa";
 import classNames from 'classnames';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { Box } from '@radix-ui/themes';
 
 const NavBar = () => {
 
     const currentPath = usePathname()
+    const { status, data: session } = useSession();
     const links = [
         {label:"Dashboard",href:"/"},
         {label:"issues",href:"/issues/list"}
@@ -15,19 +18,24 @@ const NavBar = () => {
   return (
     <div className='flex gap-10 border-b mb-5 px-5 h-14 items-center'>
         <Link href="/"><FaBug/></Link>
-        <div className='flex gap-10 font-bold' >
+        <ul className='flex gap-10 font-bold' >
             {links.map(link =>
-                <Link
-                    key={link.href} 
-                    className={classNames({
-                        'text-purple-600': link.href === currentPath,
-                        'text-zinc-500': link.href !== currentPath,
-                        'hover:text-zinc-800 transition-colors' : true
-                    })}
-                    href={link.href}>{link.label}
-                </Link>
+                <li key={link.href} >
+                    <Link
+                        className={classNames({
+                            'text-purple-600': link.href === currentPath,
+                            'text-zinc-500': link.href !== currentPath,
+                            'hover:text-zinc-800 transition-colors' : true
+                        })}
+                        href={link.href}>{link.label}
+                    </Link>
+                </li>
             )}
-        </div>
+        </ul>
+        <Box>
+            { status === "authenticated" && <Link href="/api/auth/signout" className=' font-bold hover:text-purple-800 transition-colors '>Log Out</Link> }
+            { status === "unauthenticated" && <Link href="/api/auth/signin">Log In</Link> }
+        </Box>
     </div>
   )
 }
